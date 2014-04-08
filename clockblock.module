@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * Implements hook_block_info().
+ */
+function clockblock_block_info() {
+  $blocks = array();
+  $blocks['clockblock_block'] = array(
+    'info' => t('Clock Block'),
+  );
+ 
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ */
+function clockblock_block_configure($delta='') {
+  $form = array();
+ 
+  switch($delta) {
+    case 'clockblock_block' :
+        $types = array(
+            0 => t('12 Hour'),
+            1 => t('24 Hour')
+        );
+        $form['clock_type'] = array(
+         '#type' => 'radios',
+         '#title' => t('Clock type'),
+         '#default_value' => variable_get('clockblock_type', 1),
+         '#options' => $types,
+         '#description' => t('Configure clock for 12 or 24 hour display.'),
+       );        
+      break;
+  }
+  return $form;
+}
+
+
+/**
+ * Implements hook_block_save(), what saves the info entered
+ * within the configuration screen.
+ */
+function clockblock_block_save($delta = '', $edit = array()) {
+  switch($delta) {
+    case 'clockblock_block' :
+      variable_set('clockblock_type', $edit['clock_type']);
+      break;
+  }
+}
+
+
+/**
+ * Implements hook_block_view().
+ */
+function clockblock_block_view($delta = '') {
+    $block = array();
+
+    switch ($delta) {
+        case 'clockblock_block' :
+            $block['content'] = array(
+                    '#prefix' => '<div class="clockblock_wrapper">',
+                    '#type' => 'markup',
+                    '#markup' => 'THIS IS SOME MARKUP!',
+                    '#suffix' => '</div>',
+            );
+            break;
+    }
+
+    return $block;
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function clockblock_theme_registry_alter(&$theme_registry) {
+  // Defined path to current module.
+  $module_path = drupal_get_path('module', 'clockblock');
+  // Find all .tpl.php files in this module's folder recursively.
+  $template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+  print_r($template_file_objects);
+  // Itterate through all found template file objects.
+  foreach ($template_file_objects as $key => $template_file_object) {
+      
+    // If the template has not already been overridden by a theme.
+    if (!preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+      // Alter the theme path and template elements.
+      $theme_registry[$key]['theme path'] = $module_path;
+      $theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+    }
+  }
+}
+?>

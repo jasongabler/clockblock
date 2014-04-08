@@ -1,0 +1,3 @@
+name = Clock Block
+description = Provides a block with a live clock
+core = 7.x
